@@ -39,10 +39,13 @@ func handleConnection(conn net.Conn) {
 	log.Output(1, "Handling Connection")
 
 	for {
+
 		rawdata, err := bufio.NewReader(conn).ReadString('\n')
 
 		if err != nil {
 			log.Output(1, err.Error())
+			conn.Close()
+			return
 		}
 
 		data := strings.TrimSpace(string(rawdata)) //clean up the data
