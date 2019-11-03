@@ -1,8 +1,10 @@
 package main
 
 import (
+	"bufio"
 	"log"
 	"net"
+	"strings"
 )
 
 func main() {
@@ -33,5 +35,25 @@ func main() {
 }
 
 func handleConnection(conn net.Conn) {
+	// This function takes the connection and reads the data within in to determine what to do
 	log.Output(1, "Handling Connection")
+
+	for {
+		rawdata, err := bufio.NewReader(conn).ReadString('\n')
+
+		if err != nil {
+			log.Output(1, err.Error())
+		}
+
+		data := strings.TrimSpace(string(rawdata)) //clean up the data
+
+		if data == "test" {
+			log.Output(1, "successfully read data, found test")
+			conn.Write([]byte("server read your message correctly"))
+		} else {
+			log.Output(1, "client message did not contain test")
+			conn.Write([]byte("server did not find test in your message"))
+		}
+
+	}
 }
