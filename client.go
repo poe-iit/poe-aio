@@ -1,3 +1,6 @@
+// This is client 1 which is the headless button client. 
+// Button can be pressed depending on the emergency
+// Forwards emergency event to the server
 package main
 
 import (
@@ -5,7 +8,8 @@ import (
 	"fmt"
 	"log"
 	"net"
-	"os"
+	
+	"github.com/warthog618/gpio"
 )
 
 func main() {
@@ -21,17 +25,48 @@ func main() {
 	}
 
 	for {
-		// read in input from stdin
-		reader := bufio.NewReader(os.Stdin)
-		fmt.Print("Text to send: ")
-		text, _ := reader.ReadString('\n')
+		// read emergency from GPIO buttons
+		//emergencyType, err := listenForButtonPress()
 
-		// write text to socket, sending it to the server
-		fmt.Fprintf(sock, text+"\n")
+		//if err != nil {
+			//log.Output(1, err.Error())
+		//}
 
-		// listen for reply
+		// The above code will normally block until a button is pressed
+		emergencyType := "client1 fire"
+
+		// write emergency to server
+		fmt.Fprintf(sock, emergencyType+"\n")
+		fmt.Println("Sent message")
+
+		// listen for reply from the server
 		message, _ := bufio.NewReader(sock).ReadString('\n')
 		log.Output(1, "Message from server: "+message)
+		sock.Close()
 
 	}
+}
+
+func listenForButtonPress() (event string, err error)  {
+	log.Output(1, "Opening GPIO connection")
+
+	err = gpio.Open()
+	if err != nil {
+		log.Fatal(err.Error())
+		return "", err
+	}
+	defer gpio.Close()
+	log.Output(1, "GPIO connection Opened")
+
+	// Map buttons to pins
+	firePin := gpio.NewPin(20)
+
+	res := firePin.Read()
+
+	fmt.Println(res)
+
+	return "fire", err
+
+
+
 }

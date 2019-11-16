@@ -5,6 +5,7 @@ import (
 	"log"
 	"net"
 	"strings"
+	"fmt"
 )
 
 func main() {
@@ -28,6 +29,12 @@ func main() {
 		if err != nil {
 			log.Output(1, err.Error())
 		}
+		
+		// get ip and port of connection, determines if its client 1 or client 2
+		connAddress := strings.Split(conn.RemoteAddr().String(), ":")
+		connIP, connPort := connAddress[0], connAddress[1]
+		fmt.Println("IP: " +connIP)
+		fmt.Println("Port: " +connPort)
 
 		go handleConnection(conn)
 	}
@@ -49,13 +56,14 @@ func handleConnection(conn net.Conn) {
 		}
 
 		data := strings.TrimSpace(string(rawdata)) //clean up the data
+		fmt.Println(data)
 
-		if data == "test" {
-			log.Output(1, "successfully read data, found test")
-			conn.Write([]byte("server read your message correctly"))
+		if strings.Contains(string(data), "client1") {
+			fmt.Println("client 1 detected")
+			conn.Write([]byte("hello client 1"+"\n"))
+
 		} else {
-			log.Output(1, "client message did not contain test")
-			conn.Write([]byte("server did not find test in your message"))
+			conn.Write([]byte("are you sure you are client1"+"\n"))
 		}
 
 	}
