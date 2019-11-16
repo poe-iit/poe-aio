@@ -5,10 +5,19 @@ import (
 	"log"
 	"net"
 	"strings"
-	"fmt"
+	//"fmt"
 )
 
+type Client struct { 
+	name string
+	connection net.Conn
+	ip string
+	port string
+
+}
+
 func main() {
+	client := Client{}
 	address := "127.0.0.1:65432"
 	protocol := "tcp4"
 
@@ -28,43 +37,82 @@ func main() {
 		conn, err := listen.Accept()
 		if err != nil {
 			log.Output(1, err.Error())
+			conn.Close()
+
+		} else {
+			
+			// get ip and port of connection, determines if its client 1 or client 2
+			connAddress := strings.Split(conn.RemoteAddr().String(), ":")
+			connIP, connPort := connAddress[0], connAddress[1]
+			
+			if connIP == "192.168.2.51" {
+				client = Client{
+					name: "client1",
+					connection: conn,
+					ip: connIP, 
+					port: connPort}
+			} else if connIP == "192.169.2.52" {
+				client = Client{
+					name: "client2",
+					connection: conn,
+					ip: connIP, 
+					port: connPort}
+			} else {
+				client = Client{
+					name: "client1",
+					connection: conn,
+					ip: connIP, 
+					port: connPort}
+			}
+			
+			go handleConnection(client)	
 		}
-		
-		// get ip and port of connection, determines if its client 1 or client 2
-		connAddress := strings.Split(conn.RemoteAddr().String(), ":")
-		connIP, connPort := connAddress[0], connAddress[1]
-		fmt.Println("IP: " +connIP)
-		fmt.Println("Port: " +connPort)
-
-		go handleConnection(conn)
 	}
-
 }
 
-func handleConnection(conn net.Conn) {
+
+func handleConnection(client Client) {
 	// This function takes the connection and reads the data within in to determine what to do
-	log.Output(1, "Handling Connection")
+	log.Output(1, "Handling Connection for " +client.name)
+	var message string
 
 	for {
 
-		rawdata, err := bufio.NewReader(conn).ReadString('\n')
+		if client.name == "client1" {
+			message = getDataFromClient(client.connection)
+			//fmt.Println(message)
+			switch {
+			case strings.Contains(message, "fire"):
+				log.Output(1, "Fire Detected from client 1, forwarding to ceiling client2")
 
-		if err != nil {
-			log.Output(1, err.Error())
-			conn.Close()
-			return
-		}
-
-		data := strings.TrimSpace(string(rawdata)) //clean up the data
-		fmt.Println(data)
-
-		if strings.Contains(string(data), "client1") {
-			fmt.Println("client 1 detected")
-			conn.Write([]byte("hello client 1"+"\n"))
-
-		} else {
-			conn.Write([]byte("are you sure you are client1"+"\n"))
+			case strings.Contains(message, "Shooter"):
+				log.Output(1, "Shooter Detected from client 1, forwarding to ceiling client2")
+			case message == "connectionBroke":
+				// handles cases where the clients close unexpectadly 
+				break
+			
+			} 
+			break
 		}
 
 	}
+}
+
+
+
+// This function takes in the connection and reads the raw data out of it
+// Only data with a newline appended to the end will be read
+func getDataFromClient(connection net.Conn) (data string) {
+	rawdata, err := bufio.NewReader(connection).ReadString('\n')
+
+	if err != nil {
+		log.Output(1, err.Error())
+		connection.Close()
+		return "connectionBroke"
+	}
+
+	data = strings.TrimSpace(string(rawdata)) //clean up the data
+	
+	return strings.ToLower(data)
+
 }
