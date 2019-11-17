@@ -63,9 +63,10 @@ func listenForButtonPress() (event string, err error)  {
 	// Map buttons to pins
 	firePin := gpio.NewPin(20)
 
-	res := firePin.Read()
-
-	fmt.Println(res)
+	switch firePin.Read() {
+	case true:
+		break
+	}
 
 	return "fire", err
 
