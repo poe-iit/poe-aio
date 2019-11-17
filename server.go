@@ -5,7 +5,7 @@ import (
 	"log"
 	"net"
 	"strings"
-	//"fmt"
+	"fmt"
 )
 
 type Client struct { 
@@ -13,11 +13,18 @@ type Client struct {
 	connection net.Conn
 	ip string
 	port string
+	connected bool
 
 }
 
+
+var connectionCounter = 0
+var client1 = Client{}
+var client2 = Client{}
+
 func main() {
-	client := Client{}
+
+	
 	address := "127.0.0.1:65432"
 	protocol := "tcp4"
 
@@ -31,10 +38,13 @@ func main() {
 
 	log.Output(1, "Server listening on "+address)
 
+
+
 	// keeps running and checks for a connection
 	// once a connection is established, handle it in another thread
 	for {
 		conn, err := listen.Accept()
+		connectionCounter += 1
 		if err != nil {
 			log.Output(1, err.Error())
 			conn.Close()
@@ -45,27 +55,35 @@ func main() {
 			connAddress := strings.Split(conn.RemoteAddr().String(), ":")
 			connIP, connPort := connAddress[0], connAddress[1]
 			
+			// for local testing, using number of connections to determine if client 1 or 2 connected
+			// for production, will use the IP addresses 
 			if connIP == "192.168.2.51" {
-				client = Client{
+				client1 = Client{
 					name: "client1",
 					connection: conn,
 					ip: connIP, 
-					port: connPort}
-			} else if connIP == "192.169.2.52" {
-				client = Client{
+					port: connPort,
+				    connected: true}
+			} else if connectionCounter == 1{ 
+				client2 = Client{
 					name: "client2",
 					connection: conn,
 					ip: connIP, 
-					port: connPort}
-			} else {
-				client = Client{
+					port: connPort,
+					connected: true}
+					go handleConnection(client2)	
+			} else if connectionCounter > 1{
+				client1 = Client{
 					name: "client1",
 					connection: conn,
 					ip: connIP, 
-					port: connPort}
+					port: connPort,
+					connected: true}
+					go handleConnection(client1)	
 			}
 			
-			go handleConnection(client)	
+			
+			//go handleConnection(client)	
 		}
 	}
 }
@@ -84,6 +102,9 @@ func handleConnection(client Client) {
 			switch {
 			case strings.Contains(message, "fire"):
 				log.Output(1, "Fire Detected from client 1, forwarding to ceiling client2")
+				fmt.Println(client2.connection)
+				client2.connection.Write([]byte("fire"+"\n"))
+
 
 			case strings.Contains(message, "Shooter"):
 				log.Output(1, "Shooter Detected from client 1, forwarding to ceiling client2")
@@ -94,6 +115,13 @@ func handleConnection(client Client) {
 			} 
 			break
 		}
+
+		if client.name == "client2" {
+			log.Output(1, "Responding to client 2 handshake")
+			client.connection.Write([]byte("serverhandshake"+"\n"))
+			break
+		}
+		break
 
 	}
 }
