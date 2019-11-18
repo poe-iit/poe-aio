@@ -6,13 +6,25 @@ import (
 	"log"
 	"net"
 	"strings"
+	"time"
 	
-	//"github.com/warthog618/gpio"
+	"github.com/warthog618/gpio"
 )
 
 
+var smokePin *gpio.Pin
+var fireOutPin *gpio.Pin
+var shooterOutPin *gpio.Pin
+var envOutPin *gpio.Pin
 
 func main() {
+	
+	err := initPins()
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+
+	go listenForSmoke()
 
 	serverAddress := "127.0.0.1:65432"
 	protocol := "tcp"
@@ -43,4 +55,56 @@ func main() {
 		
 
 	}
+}
+
+func initPins() (err error) {
+	err = gpio.Open()
+	if err != nil {
+		log.Fatal(err.Error())
+		return err
+	}
+	defer gpio.Close()
+	log.Output(1, "GPIO connection Opened")
+
+	// inits the pins, sets the pins to either input or output
+	smokePin = gpio.NewPin(13)
+	fireOutPin = gpio.NewPin(14)
+	fireOutPin.SetMode(gpio.Output)
+	shooterOutPin = gpio.NewPin(16)
+	shooterOutPin.SetMode(gpio.Output)
+	envOutPin = gpio.NewPin(17)
+	envOutPin.SetMode(gpio.Output)
+	
+	log.Output(1, "Pins initialized")
+	
+	return err
+
+}
+
+
+
+func writeToGPIO(emergencyType string) {
+	switch emergencyType {
+	case "Fire":
+		fireOutPin.Write(gpio.High)
+	case "Shooter":
+		shooterOutPin.Write(gpio.High)
+
+	case "Enviormental":
+		envOutPin.Write(gpio.High)	
+	}
+}
+
+
+func listenForSmoke() {
+	log.Output(1, "Listening for smoke")
+
+	for {
+		if smokePin.Read() == true {
+			log.Output(1, "SMOKE DETECTED")
+			writeToGPIO("Fire")
+			time.Sleep(5 * time.Second)
+		}
+	}
+
 }
