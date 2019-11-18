@@ -12,7 +12,7 @@ import (
 )
 
 
-var smokePin *gpio.Pin
+
 var fireOutPin *gpio.Pin
 var shooterOutPin *gpio.Pin
 var envOutPin *gpio.Pin
@@ -68,11 +68,11 @@ func initPins() (err error) {
 
 	// inits the pins, sets the pins to either input or output
 	smokePin = gpio.NewPin(13)
-	fireOutPin = gpio.NewPin(14)
+	fireOutPin = gpio.NewPin(22)
 	fireOutPin.SetMode(gpio.Output)
-	shooterOutPin = gpio.NewPin(16)
+	shooterOutPin = gpio.NewPin(23)
 	shooterOutPin.SetMode(gpio.Output)
-	envOutPin = gpio.NewPin(17)
+	envOutPin = gpio.NewPin(24)
 	envOutPin.SetMode(gpio.Output)
 	
 	log.Output(1, "Pins initialized")
@@ -99,6 +99,7 @@ func writeToGPIO(emergencyType string) {
 
 func listenForSmoke() {
 	log.Output(1, "Listening for smoke")
+	smokePin := gpio.NewPin(13)
 
 	for {
 		if smokePin.Read() == true {
