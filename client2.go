@@ -102,7 +102,7 @@ func listenForSmoke() {
 	smokePin := gpio.NewPin(13)
 
 	for {
-		if smokePin.Read() == true {
+		if !smokePin.Read() == true {
 			log.Output(1, "SMOKE DETECTED")
 			writeToGPIO("Fire")
 			time.Sleep(5 * time.Second)
