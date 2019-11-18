@@ -67,7 +67,7 @@ func initPins() (err error) {
 	log.Output(1, "GPIO connection Opened")
 
 	// inits the pins, sets the pins to either input or output
-	smokePin = gpio.NewPin(13)
+
 	fireOutPin = gpio.NewPin(22)
 	fireOutPin.SetMode(gpio.Output)
 	shooterOutPin = gpio.NewPin(23)
