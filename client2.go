@@ -23,6 +23,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err.Error())
 	}
+	defer gpio.Close()
 
 	go listenForSmoke()
 
@@ -63,7 +64,6 @@ func initPins() (err error) {
 		log.Fatal(err.Error())
 		return err
 	}
-	defer gpio.Close()
 	log.Output(1, "GPIO connection Opened")
 
 	// inits the pins, sets the pins to either input or output
