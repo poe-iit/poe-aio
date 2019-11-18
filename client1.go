@@ -28,14 +28,14 @@ func main() {
 
 	for {
 		// read emergency from GPIO buttons
-		//emergencyType, err := listenForButtonPress()
+		emergencyType, err := listenForButtonPress()
 
-		//if err != nil {
-			//log.Output(1, err.Error())
-		//}
+		if err != nil {
+			log.Output(1, err.Error())
+		}
 
 		// The above code will normally block until a button is pressed
-		emergencyType := "client1 fire"
+		//emergencyType := "client1 fire"
 
 		// write emergency to server
 		fmt.Fprintf(sock, emergencyType+"\n")
@@ -59,13 +59,18 @@ func listenForButtonPress() (event string, err error)  {
 	}
 	defer gpio.Close()
 	log.Output(1, "GPIO connection Opened")
+	log.Output(1, "Waiting for Button Press")
 
 	// Map buttons to pins
-	firePin := gpio.NewPin(20)
+	firePin := gpio.NewPin(21)
 
-	switch firePin.Read() {
-	case true:
-		break
+	for {
+		res := firePin.Read()
+		//fmt.Println(res)
+		if res {
+			fmt.Println("Button Pressed")
+			break
+		}
 	}
 
 	return "fire", err
