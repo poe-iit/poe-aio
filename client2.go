@@ -50,6 +50,7 @@ func main() {
 			log.Output(1, "Message from server: "+message)
 		} else if message == "fire" {
 			log.Output(1,"FIRE FROM HEADLESS CLIENT")
+			writeToGPIO("Fire")
 		} else if message == "shooter" {
 			log.Output(1, "SHOOTER FROM HEADLESS CLIENT")
 		}
