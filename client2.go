@@ -84,6 +84,7 @@ func initPins() (err error) {
 
 
 func writeToGPIO(emergencyType string) {
+	log.Output(1, "Writing to GPIO")
 	switch emergencyType {
 	case "Fire":
 		fireOutPin.Write(gpio.High)
