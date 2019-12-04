@@ -25,7 +25,7 @@ var client2 = Client{}
 func main() {
 
 	
-	address := "127.0.0.1:65432"
+	address := "192.168.2.50:65432"
 	protocol := "tcp4"
 
 	listen, err := net.Listen(protocol, address)
@@ -57,14 +57,14 @@ func main() {
 			
 			// for local testing, using number of connections to determine if client 1 or 2 connected
 			// for production, will use the IP addresses 
-			if connIP == "192.168.2.51" {
+			if connIP == "192.168.2.118" {
 				client1 = Client{
 					name: "client1",
 					connection: conn,
 					ip: connIP, 
 					port: connPort,
 				    connected: true}
-			} else if connectionCounter == 1{ 
+			} else if connIP == "192.168.2.51" { 
 				client2 = Client{
 					name: "client2",
 					connection: conn,
@@ -72,7 +72,7 @@ func main() {
 					port: connPort,
 					connected: true}
 					go handleConnection(client2)	
-			} else if connectionCounter > 1{
+			} else if connIP == "192.168.2.53" {
 				client1 = Client{
 					name: "client1",
 					connection: conn,
