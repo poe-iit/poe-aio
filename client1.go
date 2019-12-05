@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"log"
 	"net"
-	"time"
+	"time"	
 	
 	"github.com/warthog618/gpio"
 )
@@ -19,20 +19,13 @@ func main() {
 	serverAddress := "192.168.2.50:65432"
 	protocol := "tcp"
 
-	// create a socket for connecting to the server
-	sock, err := net.Dial(protocol, serverAddress)
-
-	if err != nil {
-		log.Output(1, err.Error())
-	}
 
 	log.Output(1, "Opening GPIO connection")
 
-	err = gpio.Open()
+	err := gpio.Open()
 	if err != nil {
-		log.Fatal(err.Error())
-	}
-	
+		log.Output(1, err.Error())
+	}	
 	defer gpio.Close()
 	log.Output(1, "GPIO connection Opened")
 
@@ -43,7 +36,11 @@ func main() {
 	for {
 		// read emergency from GPIO buttons
 		emergencyType, err := listenForButtonPress(firePin, shooterPin)
-
+		if err != nil {
+			log.Output(1, err.Error())
+		}
+		fmt.Println(emergencyType)
+		sock, err := net.Dial(protocol, serverAddress)
 		if err != nil {
 			log.Output(1, err.Error())
 		}
@@ -51,7 +48,8 @@ func main() {
 		// write emergency to server
 		fmt.Fprintf(sock, emergencyType+"\n")
 		fmt.Println("Sent message")
-		time.Sleep(5* time.Second)
+		sock.Close()
+		time.Sleep(1* time.Second)
 
 	}
 }
@@ -66,7 +64,7 @@ func listenForButtonPress(firePin *gpio.Pin, shooterPin *gpio.Pin) (event string
 		}
 
 		if shooterPin.Read() {
-			return "shooter", err
+			return "Shooter", err
 		}
 		
 	}
