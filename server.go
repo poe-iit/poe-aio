@@ -28,7 +28,7 @@ var client2 = Client{}
 func main() {
 
 	
-	address := "127.0.0.1:65432"
+	address := "192.168.2.50:65432"
 	protocol := "tcp4"
 
 	listen, err := net.Listen(protocol, address)
