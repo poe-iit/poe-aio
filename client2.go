@@ -25,9 +25,9 @@ func main() {
 	}
 	defer gpio.Close()
 
-	go listenForSmoke()
+	//go listenForSmoke()
 
-	serverAddress := "192.168.2.51:65432"
+	serverAddress := "192.168.2.50:65432"
 	protocol := "tcp"
 
 	// create a socket for connecting to the server
@@ -78,8 +78,10 @@ func initPins() (err error) {
 
 	fireOutPin = gpio.NewPin(22)
 	fireOutPin.SetMode(gpio.Output)
+	fireOutPin.Write(gpio.High)
 	shooterOutPin = gpio.NewPin(23)
 	shooterOutPin.SetMode(gpio.Output)
+	shooterOutPin.Write(gpio.High)
 	envOutPin = gpio.NewPin(24)
 	envOutPin.SetMode(gpio.Output)
 	
@@ -122,8 +124,8 @@ func listenForSmoke() {
 
 func triggerButton(pin *gpio.Pin) {
 
-	pin.Write(gpio.High)
-	time.Sleep(250 * time.Millisecond)
 	pin.Write(gpio.Low)
+	time.Sleep(250 * time.Millisecond)
+	pin.Write(gpio.High)
 
 }
