@@ -27,7 +27,7 @@ func main() {
 
 	go listenForSmoke()
 
-	serverAddress := "127.0.0.1:65432"
+	serverAddress := "192.168.2.51:65432"
 	protocol := "tcp"
 
 	// create a socket for connecting to the server
@@ -53,6 +53,13 @@ func main() {
 			writeToGPIO("Fire")
 		} else if message == "shooter" {
 			log.Output(1, "SHOOTER FROM HEADLESS CLIENT")
+			writeToGPIO("Shooter")
+		} else if message == "enviormental" {
+			log.Output(1, "ENV FROM GUI")
+			writeToGPIO("Enviormental")
+		} else if message == "safety" {
+			log.Output(1, "default")
+			writeToGPIO("Safety")
 		}
 		
 
@@ -88,12 +95,12 @@ func writeToGPIO(emergencyType string) {
 	log.Output(1, "Writing to GPIO")
 	switch emergencyType {
 	case "Fire":
-		fireOutPin.Write(gpio.High)
+		triggerButton(fireOutPin)
 	case "Shooter":
-		shooterOutPin.Write(gpio.High)
+		triggerButton(shooterOutPin)
 
 	case "Enviormental":
-		envOutPin.Write(gpio.High)	
+		triggerButton(envOutPin)	
 	}
 }
 
@@ -109,5 +116,14 @@ func listenForSmoke() {
 			time.Sleep(5 * time.Second)
 		}
 	}
+
+}
+
+
+func triggerButton(pin *gpio.Pin) {
+
+	pin.Write(gpio.High)
+	time.Sleep(250 * time.Millisecond)
+	pin.Write(gpio.Low)
 
 }

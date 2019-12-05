@@ -16,7 +16,7 @@ import (
 
 func main() {
 
-	serverAddress := "127.0.0.1:65432"
+	serverAddress := "192.168.2.53:65432"
 	protocol := "tcp"
 
 	// create a socket for connecting to the server

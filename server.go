@@ -175,6 +175,18 @@ func handleRequests(w http.ResponseWriter, r *http.Request) {
 		}
 		
 		emergencyType := r.Form["emergency"][0]
+
+		switch emergencyType {
+		case "fire":
+			client2.connection.Write([]byte("fire"+"\n"))
+		case "shooter":
+			client2.connection.Write([]byte("shooter"+"\n"))
+		case "enviormental":
+			client2.connection.Write([]byte("enviormental"+"\n"))
+		case "safety":
+			client2.connection.Write([]byte("safety"+"\n"))
+
+		}
 		fmt.Println(emergencyType)
 
         
