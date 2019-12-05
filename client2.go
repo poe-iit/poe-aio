@@ -16,6 +16,7 @@ import (
 var fireOutPin *gpio.Pin
 var shooterOutPin *gpio.Pin
 var envOutPin *gpio.Pin
+var smokePin *gpio.Pin
 
 func main() {
 	
@@ -25,7 +26,6 @@ func main() {
 	}
 	defer gpio.Close()
 
-	//go listenForSmoke()
 
 	serverAddress := "192.168.2.50:65432"
 	protocol := "tcp"
@@ -40,6 +40,7 @@ func main() {
 	// start a connection with the server so it knows we exist
 	message := "client2"
 	fmt.Fprintf(sock, message+"\n")
+
 
 	for {
 		// listen for reply from the server
@@ -84,6 +85,9 @@ func initPins() (err error) {
 	shooterOutPin.Write(gpio.High)
 	envOutPin = gpio.NewPin(24)
 	envOutPin.SetMode(gpio.Output)
+	smokePin = gpio.NewPin(13)
+	//smokePin.SetMode(gpio.Input)
+	//smokePin.Write(gpio.High)
 	
 	log.Output(1, "Pins initialized")
 	
@@ -109,7 +113,6 @@ func writeToGPIO(emergencyType string) {
 
 func listenForSmoke() {
 	log.Output(1, "Listening for smoke")
-	smokePin := gpio.NewPin(13)
 
 	for {
 		if !smokePin.Read() == true {
