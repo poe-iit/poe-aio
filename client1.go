@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"time"
 	
 	"github.com/warthog618/gpio"
 )
@@ -47,12 +48,10 @@ func main() {
 			log.Output(1, err.Error())
 		}
 
-		// The above code will normally block until a button is pressed
-		//emergencyType := "client1 fire"
-
 		// write emergency to server
 		fmt.Fprintf(sock, emergencyType+"\n")
 		fmt.Println("Sent message")
+		time.Sleep(5* time.Second)
 
 	}
 }
