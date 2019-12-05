@@ -104,7 +104,7 @@ func handleConnection(client Client) {
 
 		if client.name == "client1" {
 			message = getDataFromClient(client.connection)
-			//fmt.Println(message)
+			fmt.Println(message)
 			switch {
 			case strings.Contains(message, "fire"):
 				log.Output(1, "Fire Detected from client 1, forwarding to ceiling client2")
@@ -114,6 +114,7 @@ func handleConnection(client Client) {
 
 			case strings.Contains(message, "Shooter"):
 				log.Output(1, "Shooter Detected from client 1, forwarding to ceiling client2")
+				client2.connection.Write([]byte("shooter"+"\n"))
 			case message == "connectionBroke":
 				// handles cases where the clients close unexpectadly 
 				break
