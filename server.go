@@ -28,7 +28,7 @@ var client2 = Client{}
 func main() {
 
 	
-	address := "127.0.0.1:65432"
+	address := "192.168.2.50:65432"
 	protocol := "tcp4"
 
 	listen, err := net.Listen(protocol, address)
@@ -62,13 +62,14 @@ func main() {
 			
 			// for local testing, using number of connections to determine if client 1 or 2 connected
 			// for production, will use the IP addresses 
-			if connIP == "192.168.2.118" {
+			if connIP == "192.168.2.110" {
 				client1 = Client{
 					name: "client1",
 					connection: conn,
 					ip: connIP, 
 					port: connPort,
 				    connected: true}
+				    go handleConnection(client1)
 			} else if connIP == "192.168.2.51" { 
 				client2 = Client{
 					name: "client2",
@@ -103,7 +104,7 @@ func handleConnection(client Client) {
 
 		if client.name == "client1" {
 			message = getDataFromClient(client.connection)
-			//fmt.Println(message)
+			fmt.Println(message)
 			switch {
 			case strings.Contains(message, "fire"):
 				log.Output(1, "Fire Detected from client 1, forwarding to ceiling client2")
@@ -111,8 +112,9 @@ func handleConnection(client Client) {
 				client2.connection.Write([]byte("fire"+"\n"))
 
 
-			case strings.Contains(message, "Shooter"):
+			case strings.Contains(message, "shooter"):
 				log.Output(1, "Shooter Detected from client 1, forwarding to ceiling client2")
+				client2.connection.Write([]byte("shooter"+"\n"))
 			case message == "connectionBroke":
 				// handles cases where the clients close unexpectadly 
 				break
