@@ -62,13 +62,14 @@ func main() {
 			
 			// for local testing, using number of connections to determine if client 1 or 2 connected
 			// for production, will use the IP addresses 
-			if connIP == "192.168.2.118" {
+			if connIP == "192.168.2.110" {
 				client1 = Client{
 					name: "client1",
 					connection: conn,
 					ip: connIP, 
 					port: connPort,
 				    connected: true}
+				    go handleConnection(client1)
 			} else if connIP == "192.168.2.51" { 
 				client2 = Client{
 					name: "client2",
