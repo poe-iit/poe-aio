@@ -34,7 +34,6 @@ func main() {
 	
 	defer gpio.Close()
 	log.Output(1, "GPIO connection Opened")
-	log.Output(1, "Waiting for Button Press")
 
 	// Map buttons to pins
 	firePin := gpio.NewPin(21)
@@ -58,7 +57,8 @@ func main() {
 	}
 }
 
-func listenForButtonPress(firePin *gpio.Pin, shooterPin *gpio.Pin) (event string, err error)  {
+func listenForButtonPress(firePin *gpio.Pin, shooterPin *gpio.Pin) (event string, err error) {
+	fmt.Println("Listening for button Press")
 	
 	for {
 		
