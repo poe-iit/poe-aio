@@ -6,6 +6,9 @@ import (
 	"net"
 	"strings"
 	"fmt"
+	"net/http"
+	"github.com/GeertJohan/go.rice"
+	"github.com/gorilla/mux"
 )
 
 type Client struct { 
@@ -25,7 +28,7 @@ var client2 = Client{}
 func main() {
 
 	
-	address := "192.168.2.50:65432"
+	address := "127.0.0.1:65432"
 	protocol := "tcp4"
 
 	listen, err := net.Listen(protocol, address)
@@ -37,6 +40,8 @@ func main() {
 	defer listen.Close()
 
 	log.Output(1, "Server listening on "+address)
+	go startWebApp()
+	log.Output(1, "Started Web UI")
 
 
 
@@ -144,3 +149,38 @@ func getDataFromClient(connection net.Conn) (data string) {
 	return strings.ToLower(data)
 
 }
+
+
+func startWebApp() {
+	router := mux.NewRouter()
+	router.HandleFunc("/button", handleRequests)
+	router.PathPrefix("/").Handler(http.FileServer(rice.MustFindBox("website").HTTPBox()))
+	log.Fatal(http.ListenAndServe(":12345", router))
+}
+
+
+func handleRequests(w http.ResponseWriter, r *http.Request) {
+	log.Output(1, "handling request from webpage")
+
+ 
+    switch r.Method {
+	case "POST":
+		log.Output(1, "Post Request Recieved")
+
+        // Call ParseForm() to parse the raw query and update r.PostForm and r.Form.
+		err := r.ParseForm()
+		
+		if err != nil {
+			log.Output(1, err.Error())
+		}
+		
+		emergencyType := r.Form["emergency"][0]
+		fmt.Println(emergencyType)
+
+        
+    default:
+        fmt.Fprintf(w, "Sorry, only GET and POST methods are supported.")
+    }
+}
+
+
