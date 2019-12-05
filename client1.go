@@ -43,7 +43,7 @@ func main() {
 
 	for {
 		// read emergency from GPIO buttons
-		emergencyType, err := listenForButtonPress()
+		emergencyType, err := listenForButtonPress(firePin, shooterPin)
 
 		if err != nil {
 			log.Output(1, err.Error())
