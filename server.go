@@ -112,7 +112,7 @@ func handleConnection(client Client) {
 				client2.connection.Write([]byte("fire"+"\n"))
 
 
-			case strings.Contains(message, "Shooter"):
+			case strings.Contains(message, "shooter"):
 				log.Output(1, "Shooter Detected from client 1, forwarding to ceiling client2")
 				client2.connection.Write([]byte("shooter"+"\n"))
 			case message == "connectionBroke":
