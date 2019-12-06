@@ -17,7 +17,7 @@ import (
 func main() {
 
 	
-	go startWebApp()
+	startWebApp()
 	log.Output(1, "Started Web UI and http server")
 
 
