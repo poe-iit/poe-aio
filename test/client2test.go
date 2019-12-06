@@ -80,14 +80,14 @@ func writeToGPIO(emergencyType string) {
 	switch emergencyType {
 	case "Fire":
 		triggerButton(fireOutPin)
-		audio("./audio/fire.mp3")
+		audio("../audio/fire.mp3")
 	case "Shooter":
 		triggerButton(shooterOutPin)
-		audio("./audio/shooter.mp3")
+		audio("../audio/shooter.mp3")
 
 	case "Enviormental":
 		triggerButton(envOutPin)
-		audio("./audio/env.mp3")	
+		audio("../audio/env.mp3")	
 	}
 }
 
