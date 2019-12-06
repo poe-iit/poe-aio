@@ -4,10 +4,11 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
 	"log"
-	"net"
+	"time"
+	"net/http"
+	"net/url"	
 	
 	"github.com/warthog618/gpio"
 )
@@ -16,64 +17,61 @@ import (
 
 func main() {
 
-	serverAddress := "127.0.0.1:65432"
-	protocol := "tcp"
 
-	// create a socket for connecting to the server
-	sock, err := net.Dial(protocol, serverAddress)
+	log.Output(1, "Opening GPIO connection")
 
+	err := gpio.Open()
 	if err != nil {
 		log.Output(1, err.Error())
-	}
+	}	
+	defer gpio.Close()
+	log.Output(1, "GPIO connection Opened")
+
+	// Map buttons to pins
+	firePin := gpio.NewPin(21)
+	shooterPin := gpio.NewPin(20)
 
 	for {
 		// read emergency from GPIO buttons
-		emergencyType, err := listenForButtonPress()
+		emergencyType, err := listenForButtonPress(firePin, shooterPin)
+		if err != nil {
+			log.Output(1, err.Error())
+		}
+		fmt.Println(emergencyType)
 
+		APIURL := "http://192.168.2.50:12345/button"
+
+		response, err := http.PostForm(APIURL,
+		url.Values{"emergency": {emergencyType}})
+	
 		if err != nil {
 			log.Output(1, err.Error())
 		}
 
-		// The above code will normally block until a button is pressed
-		//emergencyType := "client1 fire"
+		
+		fmt.Println(response)
+		
 
-		// write emergency to server
-		fmt.Fprintf(sock, emergencyType+"\n")
 		fmt.Println("Sent message")
-
-		// listen for reply from the server
-		message, _ := bufio.NewReader(sock).ReadString('\n')
-		log.Output(1, "Message from server: "+message)
-		sock.Close()
+		time.Sleep(1* time.Second)
 
 	}
 }
 
-func listenForButtonPress() (event string, err error)  {
-	log.Output(1, "Opening GPIO connection")
-
-	err = gpio.Open()
-	if err != nil {
-		log.Fatal(err.Error())
-		return "", err
-	}
-	defer gpio.Close()
-	log.Output(1, "GPIO connection Opened")
-	log.Output(1, "Waiting for Button Press")
-
-	// Map buttons to pins
-	firePin := gpio.NewPin(21)
-
+func listenForButtonPress(firePin *gpio.Pin, shooterPin *gpio.Pin) (event string, err error) {
+	fmt.Println("Listening for button Press")
+	
 	for {
-		res := firePin.Read()
-		//fmt.Println(res)
-		if res {
-			fmt.Println("Button Pressed")
-			break
+		
+		if firePin.Read() {
+			return "fire", err
 		}
-	}
 
-	return "fire", err
+		if shooterPin.Read() {
+			return "Shooter", err
+		}
+		
+	}
 
 
 
