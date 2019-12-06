@@ -29,7 +29,7 @@ func main() {
 func startWebApp() {
 	router := mux.NewRouter()
 	router.HandleFunc("/button", handleRequests)
-	router.PathPrefix("/").Handler(http.FileServer(rice.MustFindBox("website").HTTPBox()))
+	router.PathPrefix("/").Handler(http.FileServer(rice.MustFindBox("./website").HTTPBox()))
 	log.Fatal(http.ListenAndServe(":12345", router))
 }
 
