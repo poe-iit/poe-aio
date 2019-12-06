@@ -32,6 +32,11 @@ func main() {
 	}
 	defer gpio.Close()
 
+	go listenForSmoke()
+	log.Output(1, "Listening for smoke")
+
+
+
 
 	router := mux.NewRouter()
 	router.HandleFunc("/lights", handleRequests)
@@ -86,15 +91,15 @@ func writeToGPIO(emergencyType string) {
 
 
 func listenForSmoke() {
-	log.Output(1, "Listening for smoke")
 
-	for {
-		if !smokePin.Read() == true {
-			log.Output(1, "SMOKE DETECTED")
-			writeToGPIO("Fire")
-			time.Sleep(5 * time.Second)
-		}
+	if !smokePin.Read() == true {
+		log.Output(1, "SMOKE DETECTED")
+		writeToGPIO("Fire")
+		time.Sleep(5 * time.Second)
 	}
+
+	listenForSmoke()
+
 
 }
 
