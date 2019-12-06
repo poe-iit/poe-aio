@@ -18,7 +18,6 @@ func main() {
 
 	
 	startWebApp()
-	log.Output(1, "Started Web UI and http server")
 
 
 
@@ -29,7 +28,8 @@ func main() {
 func startWebApp() {
 	router := mux.NewRouter()
 	router.HandleFunc("/button", handleRequests)
-	router.PathPrefix("/").Handler(http.FileServer(rice.MustFindBox("./website").HTTPBox()))
+	router.PathPrefix("/").Handler(http.FileServer(rice.MustFindBox("../website").HTTPBox()))
+	log.Output(1, "Started Web UI and http server")
 	log.Fatal(http.ListenAndServe(":12345", router))
 }
 
