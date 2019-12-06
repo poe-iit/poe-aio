@@ -52,7 +52,12 @@ func handleRequests(w http.ResponseWriter, r *http.Request) {
 		
 		emergencyType := r.Form["emergency"][0]
 
-		sendMessage(emergencyType)
+		err = sendMessage(emergencyType)
+
+		if err != nil {
+			log.Output(1, err.Error())
+
+		}
 
         
     default:
@@ -62,7 +67,7 @@ func handleRequests(w http.ResponseWriter, r *http.Request) {
 
 
 
-func sendMessage(emergencyType string) {
+func sendMessage(emergencyType string) (err error) {
 
 	APIURL := "http://192.168.2.51:12345/lights"
 
