@@ -25,7 +25,6 @@ var envOutPin *gpio.Pin
 var smokePin *gpio.Pin
 
 
-
 func main() {
 	
 	err := initPins()
