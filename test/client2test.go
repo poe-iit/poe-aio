@@ -163,6 +163,7 @@ func handleRequests(w http.ResponseWriter, r *http.Request) {
 
 
 func audio(pathToFile string) error {
+	log.Output(1, "Playing Audio")
 	f, err := os.Open(pathToFile)
 	if err != nil {
 		return err
