@@ -80,14 +80,14 @@ func writeToGPIO(emergencyType string) {
 	switch emergencyType {
 	case "Fire":
 		triggerButton(fireOutPin)
-		audio("../audio/fire.mp3")
+		go audio("../audio/fire.mp3")
 	case "Shooter":
 		triggerButton(shooterOutPin)
-		audio("../audio/shooter.mp3")
+		go audio("../audio/shooter.mp3")
 
 	case "Enviormental":
 		triggerButton(envOutPin)
-		audio("../audio/env.mp3")	
+		go audio("../audio/env.mp3")	
 	}
 }
 
@@ -168,8 +168,7 @@ func audio(pathToFile string) error {
 	if err != nil {
 		return err
 	}
-	defer f.Close()
-
+	
 	d, err := mp3.NewDecoder(f)
 	if err != nil {
 		return err
@@ -183,9 +182,12 @@ func audio(pathToFile string) error {
 	fmt.Printf("Length: %d[bytes]\n", d.Length())
 
 	if _, err := io.Copy(p, d); err != nil {
+		p.Close()
+		f.Close()
 		return err
 	}
-
+	
 	p.Close()
-	return nil
+	f.Close()
+
 }
