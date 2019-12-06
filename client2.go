@@ -1,19 +1,20 @@
 package main
 
 import (
-	"bufio"
+
 	"fmt"
 	"log"
-	"net"
-	"strings"
+	"net/http"
 	"time"
 	
 	"github.com/warthog618/gpio"
-	"io"
 	"os"
-	"github.com/hajimehoshi/oto"
+	"github.com/faiface/beep"
+	"github.com/faiface/beep/mp3"
+	"github.com/faiface/beep/speaker"
 
-	"github.com/hajimehoshi/go-mp3"
+	"github.com/gorilla/mux"
+
 )
 
 
@@ -31,45 +32,14 @@ func main() {
 	}
 	defer gpio.Close()
 
-
-	serverAddress := "192.168.2.50:65432"
-	protocol := "tcp"
-
-	// create a socket for connecting to the server
-	sock, err := net.Dial(protocol, serverAddress)
-
-	if err != nil {
-		log.Output(1, err.Error())
-	}
-
-	// start a connection with the server so it knows we exist
-	message := "client2"
-	fmt.Fprintf(sock, message+"\n")
+	go listenForSmoke()
+	log.Output(1, "Listening for smoke")
 
 
-	for {
-		// listen for reply from the server
-		rawmessage, _ := bufio.NewReader(sock).ReadString('\n')
-		message = strings.TrimSpace(string(rawmessage)) //clean up the data
-
-		if message == "serverhandshake" {
-			log.Output(1, "Message from server: "+message)
-		} else if message == "fire" {
-			log.Output(1,"FIRE FROM HEADLESS CLIENT")
-			writeToGPIO("Fire")
-		} else if message == "shooter" {
-			log.Output(1, "SHOOTER FROM HEADLESS CLIENT")
-			writeToGPIO("Shooter")
-		} else if message == "enviormental" {
-			log.Output(1, "ENV FROM GUI")
-			writeToGPIO("Enviormental")
-		} else if message == "safety" {
-			log.Output(1, "default")
-			writeToGPIO("Safety")
-		}
-		
-
-	}
+	// start the http server to listen to requests from the server
+	router := mux.NewRouter()
+	router.HandleFunc("/lights", handleRequests)
+	log.Fatal(http.ListenAndServe(":12345", router))
 }
 
 func initPins() (err error) {
@@ -81,7 +51,6 @@ func initPins() (err error) {
 	log.Output(1, "GPIO connection Opened")
 
 	// inits the pins, sets the pins to either input or output
-
 	fireOutPin = gpio.NewPin(22)
 	fireOutPin.SetMode(gpio.Output)
 	fireOutPin.Write(gpio.High)
@@ -91,8 +60,6 @@ func initPins() (err error) {
 	envOutPin = gpio.NewPin(24)
 	envOutPin.SetMode(gpio.Output)
 	smokePin = gpio.NewPin(13)
-	//smokePin.SetMode(gpio.Input)
-	//smokePin.Write(gpio.High)
 	
 	log.Output(1, "Pins initialized")
 	
@@ -104,10 +71,13 @@ func initPins() (err error) {
 
 func writeToGPIO(emergencyType string) {
 	log.Output(1, "Writing to GPIO")
+	
 	switch emergencyType {
 	case "Fire":
 		triggerButton(fireOutPin)
 		audio("./audio/fire.mp3")
+
+		//audio("../audio/fire.mp3")
 	case "Shooter":
 		triggerButton(shooterOutPin)
 		audio("./audio/shooter.mp3")
@@ -120,15 +90,19 @@ func writeToGPIO(emergencyType string) {
 
 
 func listenForSmoke() {
-	log.Output(1, "Listening for smoke")
 
-	for {
+	for{
+
 		if !smokePin.Read() == true {
 			log.Output(1, "SMOKE DETECTED")
 			writeToGPIO("Fire")
 			time.Sleep(5 * time.Second)
 		}
+
+		time.Sleep(1 *time.Millisecond)
 	}
+
+	
 
 }
 
@@ -144,28 +118,72 @@ func triggerButton(pin *gpio.Pin) {
 
 
 
+
+func handleRequests(w http.ResponseWriter, r *http.Request) {
+	log.Output(1, "handling request from webpage")
+
+ 
+    switch r.Method {
+	case "POST":
+		log.Output(1, "Post Request Recieved")
+
+        // Call ParseForm() to parse the raw query and update r.PostForm and r.Form.
+		err := r.ParseForm()
+		
+		if err != nil {
+			log.Output(1, err.Error())
+		}
+
+	
+		// parses emergency type from post request
+		emergencyType := r.Form["emergency"][0]
+		fmt.Println(emergencyType)
+
+		// trigger the respective pins
+		switch emergencyType {
+		case "fire":
+			writeToGPIO("Fire")
+		case "Shooter":
+			writeToGPIO("Shooter")
+		case "enviormental":
+			writeToGPIO("Enviormental")
+		case "safety":
+			writeToGPIO("Safety")
+
+		}
+
+
+        
+    default:
+        fmt.Fprintf(w, "Sorry, only GET and POST methods are supported.")
+    }
+}
+
+
+
 func audio(pathToFile string) error {
+	log.Output(1, "Playing Audio")
 	f, err := os.Open(pathToFile)
 	if err != nil {
-		return err
+		log.Fatal(err)
 	}
-	defer f.Close()
 
-	d, err := mp3.NewDecoder(f)
+	streamer, format, err := mp3.Decode(f)
 	if err != nil {
 		return err
 	}
+	defer streamer.Close()
 
-	p, err := oto.NewPlayer(d.SampleRate(), 2, 2, 8192)
-	if err != nil {
-		return err
-	}
-	defer p.Close()
+	speaker.Init(format.SampleRate, format.SampleRate.N(time.Second/10))
 
-	fmt.Printf("Length: %d[bytes]\n", d.Length())
+	done := make(chan bool)
+	speaker.Play(beep.Seq(streamer, beep.Callback(func() {
+		done <- true
+	})))
 
-	if _, err := io.Copy(p, d); err != nil {
-		return err
-	}
-	return nil
+	<-done
+
+
+	return err
+
 }

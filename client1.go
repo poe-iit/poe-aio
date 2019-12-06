@@ -6,8 +6,9 @@ package main
 import (
 	"fmt"
 	"log"
-	"net"
-	"time"	
+	"time"
+	"net/http"
+	"net/url"	
 	
 	"github.com/warthog618/gpio"
 )
@@ -15,9 +16,6 @@ import (
 
 
 func main() {
-
-	serverAddress := "192.168.2.50:65432"
-	protocol := "tcp"
 
 
 	log.Output(1, "Opening GPIO connection")
@@ -40,15 +38,21 @@ func main() {
 			log.Output(1, err.Error())
 		}
 		fmt.Println(emergencyType)
-		sock, err := net.Dial(protocol, serverAddress)
+
+		APIURL := "http://192.168.2.50:12345/button"
+
+		response, err := http.PostForm(APIURL,
+		url.Values{"emergency": {emergencyType}})
+	
 		if err != nil {
 			log.Output(1, err.Error())
 		}
 
-		// write emergency to server
-		fmt.Fprintf(sock, emergencyType+"\n")
+		
+		fmt.Println(response)
+		
+
 		fmt.Println("Sent message")
-		sock.Close()
 		time.Sleep(1* time.Second)
 
 	}
