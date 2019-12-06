@@ -27,6 +27,7 @@ func main() {
 	defer gpio.Close()
 	log.Output(1, "GPIO connection Opened")
 
+
 	// Map buttons to pins
 	firePin := gpio.NewPin(21)
 	shooterPin := gpio.NewPin(20)
