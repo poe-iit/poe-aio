@@ -133,7 +133,7 @@ func handleRequests(w http.ResponseWriter, r *http.Request) {
 		switch emergencyType {
 		case "fire":
 			writeToGPIO("Fire")
-		case "shooter":
+		case "Shooter":
 			writeToGPIO("Shooter")
 		case "enviormental":
 			writeToGPIO("Enviormental")
