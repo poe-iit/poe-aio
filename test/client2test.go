@@ -24,6 +24,8 @@ var shooterOutPin *gpio.Pin
 var envOutPin *gpio.Pin
 var smokePin *gpio.Pin
 
+
+
 func main() {
 	
 	err := initPins()
@@ -176,12 +178,13 @@ func audio(pathToFile string) error {
 	if err != nil {
 		return err
 	}
-	defer p.Close()
 
 	fmt.Printf("Length: %d[bytes]\n", d.Length())
 
 	if _, err := io.Copy(p, d); err != nil {
 		return err
 	}
+
+	p.Close()
 	return nil
 }
