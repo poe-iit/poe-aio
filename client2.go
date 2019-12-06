@@ -9,6 +9,11 @@ import (
 	"time"
 	
 	"github.com/warthog618/gpio"
+	"io"
+	"os"
+	"github.com/hajimehoshi/oto"
+
+	"github.com/hajimehoshi/go-mp3"
 )
 
 
@@ -102,11 +107,14 @@ func writeToGPIO(emergencyType string) {
 	switch emergencyType {
 	case "Fire":
 		triggerButton(fireOutPin)
+		audio("./audio/fire.mp3")
 	case "Shooter":
 		triggerButton(shooterOutPin)
+		audio("./audio/shooter.mp3")
 
 	case "Enviormental":
-		triggerButton(envOutPin)	
+		triggerButton(envOutPin)
+		audio("./audio/env.mp3")	
 	}
 }
 
@@ -130,5 +138,34 @@ func triggerButton(pin *gpio.Pin) {
 	pin.Write(gpio.Low)
 	time.Sleep(250 * time.Millisecond)
 	pin.Write(gpio.High)
+	
 
+}
+
+
+
+func audio(pathToFile string) error {
+	f, err := os.Open(pathToFile)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+
+	d, err := mp3.NewDecoder(f)
+	if err != nil {
+		return err
+	}
+
+	p, err := oto.NewPlayer(d.SampleRate(), 2, 2, 8192)
+	if err != nil {
+		return err
+	}
+	defer p.Close()
+
+	fmt.Printf("Length: %d[bytes]\n", d.Length())
+
+	if _, err := io.Copy(p, d); err != nil {
+		return err
+	}
+	return nil
 }
