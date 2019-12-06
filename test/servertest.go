@@ -72,15 +72,13 @@ func sendMessage(emergencyType string) (err error) {
 	APIURL := "http://192.168.2.51:12345/lights"
 
 	response, err := http.PostForm(APIURL,
-      url.Values{"emergency": {emergencyType}})
-	
-	
+	  url.Values{"emergency": {emergencyType}})
 
-	//okay, moving on...
 	if err != nil {
 		return err
 	}
 
-	
 	fmt.Println(response)
-	}
+
+	return err
+}
