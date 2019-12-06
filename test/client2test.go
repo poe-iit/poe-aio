@@ -8,13 +8,11 @@ import (
 	"time"
 	
 	"github.com/warthog618/gpio"
-	"io"
 	"os"
 	"github.com/faiface/beep"
 	"github.com/faiface/beep/mp3"
 	"github.com/faiface/beep/speaker"
 
-	"github.com/hajimehoshi/go-mp3"
 	"github.com/gorilla/mux"
 
 )
