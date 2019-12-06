@@ -10,7 +10,9 @@ import (
 	"github.com/warthog618/gpio"
 	"io"
 	"os"
-	"github.com/hajimehoshi/oto"
+	"github.com/faiface/beep"
+	"github.com/faiface/beep/mp3"
+	"github.com/faiface/beep/speaker"
 
 	"github.com/hajimehoshi/go-mp3"
 	"github.com/gorilla/mux"
@@ -80,14 +82,16 @@ func writeToGPIO(emergencyType string) {
 	switch emergencyType {
 	case "Fire":
 		triggerButton(fireOutPin)
-		go audio("../audio/fire.mp3")
+		cmd := exec.Command("tr", "a-z", "A-Z")
+
+		//audio("../audio/fire.mp3")
 	case "Shooter":
 		triggerButton(shooterOutPin)
-		go audio("../audio/shooter.mp3")
+		audio("../audio/shooter.mp3")
 
 	case "Enviormental":
 		triggerButton(envOutPin)
-		go audio("../audio/env.mp3")	
+		audio("../audio/env.mp3")	
 	}
 }
 
@@ -166,28 +170,22 @@ func audio(pathToFile string) error {
 	log.Output(1, "Playing Audio")
 	f, err := os.Open(pathToFile)
 	if err != nil {
-		return err
+		log.Fatal(err)
 	}
-	
-	d, err := mp3.NewDecoder(f)
+
+	streamer, format, err := mp3.Decode(f)
 	if err != nil {
-		return err
+		log.Fatal(err)
 	}
+	defer streamer.Close()
 
-	p, err := oto.NewPlayer(d.SampleRate(), 2, 2, 8192)
-	if err != nil {
-		return err
-	}
+	speaker.Init(format.SampleRate, format.SampleRate.N(time.Second/10))
 
-	fmt.Printf("Length: %d[bytes]\n", d.Length())
+	done := make(chan bool)
+	speaker.Play(beep.Seq(streamer, beep.Callback(func() {
+		done <- true
+	})))
 
-	if _, err := io.Copy(p, d); err != nil {
-		p.Close()
-		f.Close()
-		return err
-	}
-	
-	p.Close()
-	f.Close()
+	<-done
 
 }
