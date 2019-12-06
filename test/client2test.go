@@ -92,14 +92,18 @@ func writeToGPIO(emergencyType string) {
 
 func listenForSmoke() {
 
-	if !smokePin.Read() == true {
-		log.Output(1, "SMOKE DETECTED")
-		writeToGPIO("Fire")
-		time.Sleep(5 * time.Second)
+	for{
+
+		if !smokePin.Read() == true {
+			log.Output(1, "SMOKE DETECTED")
+			writeToGPIO("Fire")
+			time.Sleep(5 * time.Second)
+		}
+
+		time.Sleep(1 *time.Millisecond)
 	}
 
-	listenForSmoke()
-
+	
 
 }
 
