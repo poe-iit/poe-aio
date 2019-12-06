@@ -82,7 +82,7 @@ func writeToGPIO(emergencyType string) {
 	switch emergencyType {
 	case "Fire":
 		triggerButton(fireOutPin)
-		cmd := exec.Command("tr", "a-z", "A-Z")
+		audio("../audio/fire.mp3")
 
 		//audio("../audio/fire.mp3")
 	case "Shooter":
