@@ -175,7 +175,7 @@ func audio(pathToFile string) error {
 
 	streamer, format, err := mp3.Decode(f)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 	defer streamer.Close()
 
@@ -187,5 +187,8 @@ func audio(pathToFile string) error {
 	})))
 
 	<-done
+
+
+	return err
 
 }
