@@ -10,7 +10,7 @@ import (
 	"net/http"
 	"net/url"	
 	
-	"github.com/warthog618/gpio"
+//	"github.com/warthog618/gpio"
 )
 
 
@@ -18,7 +18,7 @@ import (
 func main() {
 
 
-	log.Output(1, "Opening GPIO connection")
+/*	log.Output(1, "Opening GPIO connection")
 
 	err := gpio.Open()
 	if err != nil {
@@ -30,16 +30,14 @@ func main() {
 	// Map buttons to pins
 	firePin := gpio.NewPin(21)
 	shooterPin := gpio.NewPin(20)
-
+*/
 	for {
 		// read emergency from GPIO buttons
-		emergencyType, err := listenForButtonPress(firePin, shooterPin)
-		if err != nil {
-			log.Output(1, err.Error())
-		}
+	  //emergencyType := listenForButtonPress(firePin, shooterPin)
+		emergencyType := "fire"
 		fmt.Println(emergencyType)
 
-		APIURL := "http://192.168.2.50:12345/button"
+		APIURL := "http://127.0.0.1:12345/button"
 
 		response, err := http.PostForm(APIURL,
 		url.Values{"emergency": {emergencyType}})
@@ -58,6 +56,8 @@ func main() {
 	}
 }
 
+
+/*
 func listenForButtonPress(firePin *gpio.Pin, shooterPin *gpio.Pin) (event string, err error) {
 	fmt.Println("Listening for button Press")
 	
@@ -75,4 +75,4 @@ func listenForButtonPress(firePin *gpio.Pin, shooterPin *gpio.Pin) (event string
 
 
 
-}
+}*/
