@@ -31,7 +31,7 @@ func main() {
 	firePin := gpio.NewPin(21)
 	shooterPin := gpio.NewPin(20)
 */
-	for {
+	//for {
 		// read emergency from GPIO buttons
 	  //emergencyType := listenForButtonPress(firePin, shooterPin)
 		emergencyType := "fire"
@@ -53,7 +53,7 @@ func main() {
 		fmt.Println("Sent message")
 		time.Sleep(1* time.Second)
 
-	}
+	//}
 }
 
 
@@ -72,7 +72,5 @@ func listenForButtonPress(firePin *gpio.Pin, shooterPin *gpio.Pin) (event string
 		}
 		
 	}
-
-
 
 }*/
