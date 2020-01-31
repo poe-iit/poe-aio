@@ -73,19 +73,20 @@ func writeToGPIO(emergencyType string) {
 	log.Output(1, "Writing to GPIO")
 	
 	switch emergencyType {
-	case "Fire":
+	case "fire":
 		triggerButton(fireOutPin)
 		audio("./audio/fire.mp3")
 
 		//audio("../audio/fire.mp3")
-	case "Shooter":
+	case "shooter":
 		triggerButton(shooterOutPin)
 		audio("./audio/shooter.mp3")
 
-	case "Enviormental":
+	case "environmental":
 		triggerButton(envOutPin)
 		audio("./audio/env.mp3")	
 	}
+
 }
 
 
@@ -95,7 +96,7 @@ func listenForSmoke() {
 
 		if !smokePin.Read() == true {
 			log.Output(1, "SMOKE DETECTED")
-			writeToGPIO("Fire")
+			writeToGPIO("fire")
 			time.Sleep(5 * time.Second)
 		}
 
@@ -142,13 +143,13 @@ func handleRequests(w http.ResponseWriter, r *http.Request) {
 		// trigger the respective pins
 		switch emergencyType {
 		case "fire":
-			writeToGPIO("Fire")
-		case "Shooter":
-			writeToGPIO("Shooter")
-		case "enviormental":
-			writeToGPIO("Enviormental")
+			writeToGPIO("fire")
+		case "shooter":
+			writeToGPIO("shooter")
+		case "environmental":
+			writeToGPIO("environmental")
 		case "safety":
-			writeToGPIO("Safety")
+			writeToGPIO("safety")
 
 		}
 

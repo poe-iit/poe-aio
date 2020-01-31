@@ -68,7 +68,7 @@ func listenForButtonPress(firePin *gpio.Pin, shooterPin *gpio.Pin) (event string
 		}
 
 		if shooterPin.Read() {
-			return "Shooter", err
+			return "shooter", err
 		}
 		
 	}
