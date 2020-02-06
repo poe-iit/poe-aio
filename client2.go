@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"time"
 	
-	"github.com/warthog618/gpio"
+//	"github.com/warthog618/gpio"
 	"os"
 	"github.com/faiface/beep"
 	"github.com/faiface/beep/mp3"
@@ -19,20 +19,20 @@ import (
 
 
 
-var fireOutPin *gpio.Pin
+/*var fireOutPin *gpio.Pin
 var shooterOutPin *gpio.Pin
 var envOutPin *gpio.Pin
-var smokePin *gpio.Pin
+var smokePin *gpio.Pin*/
 
 func main() {
 	
-	err := initPins()
+	/*err := initPins()
 	if err != nil {
 		log.Fatal(err.Error())
-	}
-	defer gpio.Close()
+	}*/
+	//defer gpio.Close()
 
-	go listenForSmoke()
+	//go listenForSmoke()
 	log.Output(1, "Listening for smoke")
 
 
@@ -41,7 +41,7 @@ func main() {
 	router.HandleFunc("/lights", handleRequests)
 	log.Fatal(http.ListenAndServe(":12345", router))
 }
-
+/*
 func initPins() (err error) {
 	err = gpio.Open()
 	if err != nil {
@@ -66,9 +66,9 @@ func initPins() (err error) {
 	return err
 
 }
+*/
 
-
-
+/*
 func writeToGPIO(emergencyType string) {
 	log.Output(1, "Writing to GPIO")
 	
@@ -87,8 +87,8 @@ func writeToGPIO(emergencyType string) {
 		audio("./audio/env.mp3")	
 	}
 }
-
-
+*/
+/*
 func listenForSmoke() {
 
 	for{
@@ -105,8 +105,8 @@ func listenForSmoke() {
 	
 
 }
-
-
+*/
+/*
 func triggerButton(pin *gpio.Pin) {
 
 	pin.Write(gpio.Low)
@@ -114,7 +114,7 @@ func triggerButton(pin *gpio.Pin) {
 	pin.Write(gpio.High)
 	
 
-}
+}*/
 
 
 
@@ -139,6 +139,7 @@ func handleRequests(w http.ResponseWriter, r *http.Request) {
 		emergencyType := r.Form["emergency"][0]
 		fmt.Println(emergencyType)
 
+/*
 		// trigger the respective pins
 		switch emergencyType {
 		case "fire":
@@ -151,7 +152,7 @@ func handleRequests(w http.ResponseWriter, r *http.Request) {
 			writeToGPIO("Safety")
 
 		}
-
+*/
 
         
     default:

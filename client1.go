@@ -5,10 +5,10 @@ package main
 
 import (
 	"fmt"
-	"log"
+//	"log"
 	"time"
-	"net/http"
-	"net/url"	
+//	"net/http"
+//	"net/url"	
 	
 //	"github.com/warthog618/gpio"
 )
@@ -37,17 +37,17 @@ func main() {
 		emergencyType := "fire"
 		fmt.Println(emergencyType)
 
-		APIURL := "http://127.0.0.1:12345/button"
+//		APIURL := "http://127.0.0.1:5555/button"
 
-		response, err := http.PostForm(APIURL,
-		url.Values{"emergency": {emergencyType}})
-	
+	//response, err := http.PostForm(APIURL,
+//	url.Values{"emergency": {emergencyType}})
+	/*
 		if err != nil {
 			log.Output(1, err.Error())
 		}
-
+*/
 		
-		fmt.Println(response)
+//		fmt.Println(response)
 		
 
 		fmt.Println("Sent message")
@@ -69,7 +69,7 @@ func listenForButtonPress(firePin *gpio.Pin, shooterPin *gpio.Pin) (event string
 
 		if shooterPin.Read() {
 			return "Shooter", err
-		}
+		} 
 		
 	}
 
