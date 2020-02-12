@@ -5,9 +5,14 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+  "net/http/httputil"
+	"net/url"
+//  "crypto/tls"
+//  "crypto/x509"
+//  "io/ioutil"
 	"time"
 	
-//	"github.com/warthog618/gpio"
+	//"github.com/warthog618/gpio"
 	"os"
 	"github.com/faiface/beep"
 	"github.com/faiface/beep/mp3"
@@ -25,7 +30,7 @@ var envOutPin *gpio.Pin
 var smokePin *gpio.Pin*/
 
 func main() {
-	
+
 	/*err := initPins()
 	if err != nil {
 		log.Fatal(err.Error())
@@ -34,12 +39,33 @@ func main() {
 
 	//go listenForSmoke()
 	log.Output(1, "Listening for smoke")
+/*
+  caCert, err := ioutil.ReadFile("../server/server.crt")
+       if err != nil {
+               log.Fatal(err)
+       }
+       caCertPool := x509.NewCertPool()
+       caCertPool.AppendCertsFromPEM(caCert)
 
+   client := &http.Client{
+                Transport: &http.Transport{
+                       TLSClientConfig: &tls.Config{
+                               RootCAs: caCertPool,
+                      },
+                },
+}*/
 
 	// start the http server to listen to requests from the server
 	router := mux.NewRouter()
 	router.HandleFunc("/lights", handleRequests)
-	log.Fatal(http.ListenAndServe(":12345", router))
+	//log.Fatal(http.ListenAndServe(":12345", router))
+
+  localProxyUrl, _ := url.Parse("http://127.0.0.1:8200/")
+	localProxy := httputil.NewSingleHostReverseProxy(localProxyUrl)
+	http.Handle("/", localProxy)
+
+	log.Println("Serving on localhost:12345")
+	log.Fatal(http.ListenAndServeTLS(":12345", "server.crt", "server.key", router))
 }
 /*
 func initPins() (err error) {

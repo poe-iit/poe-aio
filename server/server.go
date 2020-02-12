@@ -3,29 +3,34 @@ package main
 import (
 	
 	"log"
-
 	"fmt"
 	"net/http"
+	"net/http/httputil"
 	"github.com/GeertJohan/go.rice"
 	"github.com/gorilla/mux"
 	"net/url"
 )
 
 
-
-
 func main() {
 	startWebApp()
-}
 
+}
 
 
 func startWebApp() {
 	router := mux.NewRouter()
 	router.HandleFunc("/button", handleRequests)
-	router.PathPrefix("/").Handler(http.FileServer(rice.MustFindBox("./website").HTTPBox())) // starts the web UI
+	router.PathPrefix("/").Handler(http.FileServer(rice.MustFindBox("../website").HTTPBox())) // starts the web UI
 	log.Output(1, "Started Web UI and http server")
-	log.Fatal(http.ListenAndServe(":5050", router))
+	//log.Fatal(http.ListenAndServe(":8080", router))
+
+	localProxyUrl, _ := url.Parse("http://127.0.0.1:8100/")
+	localProxy := httputil.NewSingleHostReverseProxy(localProxyUrl)
+	http.Handle("/", localProxy)
+
+	log.Println("Serving on localhost:8080")
+	log.Fatal(http.ListenAndServeTLS(":8080", "server.crt", "server.key", router))
 }
 
 
@@ -62,7 +67,7 @@ func handleRequests(w http.ResponseWriter, r *http.Request) {
 
 func sendMessage(emergencyType string) (err error) {
 
-	APIURL := "http://127.0.0.1:12345/lights"
+	APIURL := "https://localhost:12345/lights"
 
 	response, err := http.PostForm(APIURL,
 	  url.Values{"emergency": {emergencyType}})
