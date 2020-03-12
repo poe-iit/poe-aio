@@ -6,7 +6,7 @@ import (
 	"log"
 	"net/http"
 	"time"
-	
+
 	"github.com/warthog618/gpio"
 	"os"
 	"github.com/faiface/beep"
@@ -25,7 +25,7 @@ var envOutPin *gpio.Pin
 var smokePin *gpio.Pin
 
 func main() {
-	
+
 	err := initPins()
 	if err != nil {
 		log.Fatal(err.Error())
@@ -39,6 +39,7 @@ func main() {
 	// start the http server to listen to requests from the server
 	router := mux.NewRouter()
 	router.HandleFunc("/lights", handleRequests)
+	log.Println("About to listen on 12345. Go to https://localhost:12345")
 	log.Fatal(http.ListenAndServe(":12345", router))
 }
 
@@ -60,9 +61,9 @@ func initPins() (err error) {
 	envOutPin = gpio.NewPin(24)
 	envOutPin.SetMode(gpio.Output)
 	smokePin = gpio.NewPin(13)
-	
+
 	log.Output(1, "Pins initialized")
-	
+
 	return err
 
 }
@@ -71,7 +72,7 @@ func initPins() (err error) {
 
 func writeToGPIO(emergencyType string) {
 	log.Output(1, "Writing to GPIO")
-	
+
 	switch emergencyType {
 	case "fire":
 		triggerButton(fireOutPin)
@@ -84,7 +85,7 @@ func writeToGPIO(emergencyType string) {
 
 	case "environmental":
 		triggerButton(envOutPin)
-		audio("./audio/env.mp3")	
+		audio("./audio/env.mp3")
 	}
 
 }
@@ -103,7 +104,7 @@ func listenForSmoke() {
 		time.Sleep(1 *time.Millisecond)
 	}
 
-	
+
 
 }
 
@@ -113,7 +114,7 @@ func triggerButton(pin *gpio.Pin) {
 	pin.Write(gpio.Low)
 	time.Sleep(250 * time.Millisecond)
 	pin.Write(gpio.High)
-	
+
 
 }
 
@@ -123,19 +124,19 @@ func triggerButton(pin *gpio.Pin) {
 func handleRequests(w http.ResponseWriter, r *http.Request) {
 	log.Output(1, "handling request from webpage")
 
- 
+
     switch r.Method {
 	case "POST":
 		log.Output(1, "Post Request Recieved")
 
         // Call ParseForm() to parse the raw query and update r.PostForm and r.Form.
 		err := r.ParseForm()
-		
+
 		if err != nil {
 			log.Output(1, err.Error())
 		}
 
-	
+
 		// parses emergency type from post request
 		emergencyType := r.Form["emergency"][0]
 		fmt.Println(emergencyType)
@@ -154,7 +155,7 @@ func handleRequests(w http.ResponseWriter, r *http.Request) {
 		}
 
 
-        
+
     default:
         fmt.Fprintf(w, "Sorry, only GET and POST methods are supported.")
     }
