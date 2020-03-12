@@ -1,7 +1,7 @@
 package main
 
 import (
-	
+
 	"log"
 
 	"fmt"
@@ -24,7 +24,7 @@ func startWebApp() {
 	router := mux.NewRouter()
 	router.HandleFunc("/button", handleRequests)
 	router.PathPrefix("/").Handler(http.FileServer(rice.MustFindBox("./website").HTTPBox())) // starts the web UI
-	log.Output(1, "Started Web UI and http server")
+	log.Output(1, "Started Web UI and http server. Go to http://localhost:12345.")
 	log.Fatal(http.ListenAndServe(":12345", router))
 }
 
@@ -32,18 +32,18 @@ func startWebApp() {
 func handleRequests(w http.ResponseWriter, r *http.Request) {
 	log.Output(1, "handling request from webpage")
 
- 
+
     switch r.Method {
 	case "POST":
-		
+
 		log.Output(1, "Post Request Recieved")
 		err := r.ParseForm()
-		
+
 		if err != nil {
 			log.Output(1, err.Error())
 		}
 
-		
+
 		emergencyType := r.Form["emergency"][0] // get the emergency out of the POST request
 		err = sendMessage(emergencyType)  // send the message to the ceiling client
 
@@ -52,7 +52,7 @@ func handleRequests(w http.ResponseWriter, r *http.Request) {
 
 		}
 
-        
+
     default:
         fmt.Fprintf(w, "Sorry, only GET and POST methods are supported.")
     }
